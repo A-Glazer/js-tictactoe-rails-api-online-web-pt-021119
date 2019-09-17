@@ -10,14 +10,31 @@ var tds = document.querySelectorAll('td');
 var player = function() { 
     if (turn % 2 === 0) {
         return "X";
-} else {
-    return "O";
+    } else {
+        return "O";
 } 
 }
 
+var validMove = function(square) {
+    if (square.innerHTML === "" || square.innerHTML === " "){
+        updateState(square)
+        turn ++
+    }else{
+        alert("Location already taken. Please select a different spot.")
+    }
+}
+
+
+
 var updateState = function(square) {
     var token = player()
-    square.innerHTML = token
+    // if (square.innerHTML === ""){
+    // square.innerHTML = token
+    // }else{
+    //     alert("Location already taken. Please select a different spot.")
+    // }
+    // // console.log(token)
+    $(square).text(token) 
 }
 
 var setMessage = function (string) {
@@ -47,17 +64,24 @@ var resetGame = function() {
         el.innerHTML = "";
     })
     turn = 0
+    setMessage("")
 }
 
 var doTurn = function(letter) {
-    updateState(letter)
-    turn ++
+    // var td = tds.forEach(function(el) {
+    //     el.innerHTML != "";
+    // })
+    validMove(letter)
+    // updateState(letter)
+    // turn ++
     if (checkWinner() === true) {
-        // resetGame()
-    } else {
-        return setMessage("Tie game.")
+        saveGame()
+        resetGame()
+    } else if (turn === 9) {     
+        setMessage("Tie game.");
+        saveGame()
+        resetGame();
     }
-    resetGame()
 }
     
 var attachListeners = function() {
@@ -69,14 +93,32 @@ var attachListeners = function() {
 
     var saveBoard = document.querySelector("button#save")
     saveBoard.addEventListener('click', function(event){
-        
+        saveGame()
         $.post('/games')
     })
 
+    var previousBoard = document.querySelector("button#previous")
+    previousBoard.addEventListener('click', function(event){
+        if (saveGame()) {
+        $.get('/games')
+        }
+    })
+
+    var clearBoard = document.querySelector("button#clear")
+    clearBoard.addEventListener('click', function(event){
+        resetGame()
+
+    })
 }
     
 $(document).ready(function() {
     attachListeners()
 })
 
-
+var saveGame = function() {
+    var board = []    
+    tds.forEach(function(el) {
+        board.push(el.innerHTML);
+    })
+    return board
+}
