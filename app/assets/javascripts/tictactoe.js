@@ -5,7 +5,10 @@ const winning_combo = [
     [0,3,6], [1,4,7], [2,5,8],
     [0,4,8], [2,4,6]
 ]
-var tds = document.querySelectorAll('td');
+$(document).ready(function() {
+    tds = document.querySelectorAll('td');
+    attachListeners()
+})
 
 var player = function() { 
     if (turn % 2 === 0) {
@@ -25,15 +28,8 @@ var validMove = function(square) {
 }
 
 
-
 var updateState = function(square) {
     var token = player()
-    // if (square.innerHTML === ""){
-    // square.innerHTML = token
-    // }else{
-    //     alert("Location already taken. Please select a different spot.")
-    // }
-    // // console.log(token)
     $(square).text(token) 
 }
 
@@ -93,32 +89,54 @@ var attachListeners = function() {
 
     var saveBoard = document.querySelector("button#save")
     saveBoard.addEventListener('click', function(event){
-        saveGame()
-        $.post('/games')
+      
+        // $("div#games").forEach(function(obj) { 
+        //         var gameId = obj.id
+        //         debugger
+        //         if (gameId === this.id) {
+        //             $.patch(`/games/${this.id}`)
+        //         }else {
+                    saveGame()
+                    $.post('/games')
+                // }
+                
+                
+    //         })
     })
 
     var previousBoard = document.querySelector("button#previous")
     previousBoard.addEventListener('click', function(event){
-        if (saveGame()) {
-        $.get('/games')
-        }
+        
+        $.get('/games', function(object) {
+            // debugger
+            $("div#games").empty()
+            object.data.forEach(function(obj) { 
+                button = `<button>${obj.id} </button>`
+                $("div#games").append(button)
+                // obj.attributes.state 
+            })
+        }   )    
     })
+        
+    
 
     var clearBoard = document.querySelector("button#clear")
     clearBoard.addEventListener('click', function(event){
         resetGame()
 
     })
+
 }
     
-$(document).ready(function() {
-    attachListeners()
-})
 
 var saveGame = function() {
+    debugger
     var board = []    
     tds.forEach(function(el) {
         board.push(el.innerHTML);
     })
-    return board
+    // return board
+    button = `<button id=data-id> ${this.id}</button>`
+    
+    $("div#games").append(button)
 }
